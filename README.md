@@ -1,6 +1,6 @@
 ### Grammar
 
-Basic parser that respects opertor precedence:
+Basic arithmetic parser that respects operator precedence:
 ```
 expr → term ((PLUS | MINUS) term)*
 term → factor ((MUL | DIV) factor)*
