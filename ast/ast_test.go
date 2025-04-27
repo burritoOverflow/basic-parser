@@ -116,15 +116,15 @@ func TestPrettyPrintAST(t *testing.T) {
 
 	expectedOutput := `
 BinaryOp(*)
-  Left: 
+  Left:
     BinaryOp(+)
       Left:
         Number(1)
-      Right: 
+      Right:
         Number(2)
-  Right: 
+  Right:
     UnaryOp(-)
-      Expr: 
+      Expr:
         Number(3)
 `
 	// Trim leading/trailing whitespace and normalize line endings for comparison

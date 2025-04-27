@@ -65,14 +65,14 @@ func PrettyPrintAST(node Node, indent string) string {
 		return fmt.Sprintf("%sNumber(%g)\n", indent, n.Value)
 	case *BinaryOpNode:
 		result := fmt.Sprintf("%sBinaryOp(%s)\n", indent, n.Op.Value)
-		result += fmt.Sprintf("%s  Left: \n", indent)
+		result += fmt.Sprintf("%s  Left:\n", indent)
 		result += PrettyPrintAST(n.Left, indent+"    ")
-		result += fmt.Sprintf("%s  Right: \n", indent)
+		result += fmt.Sprintf("%s  Right:\n", indent)
 		result += PrettyPrintAST(n.Right, indent+"    ")
 		return result
 	case *UnaryOpNode:
 		result := fmt.Sprintf("%sUnaryOp(%s)\n", indent, n.Op.Value)
-		result += fmt.Sprintf("%s  Expr: \n", indent)
+		result += fmt.Sprintf("%s  Expr:\n", indent)
 		result += PrettyPrintAST(n.Expr, indent+"    ")
 		return result
 	default:
