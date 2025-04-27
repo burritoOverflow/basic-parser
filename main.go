@@ -114,28 +114,32 @@ func repl() {
 
 }
 
+func processFile(filePath string) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	fmt.Printf("Using input file: %s\n", *inputFile)
+	scanner := bufio.NewScanner(file)
+	lineNum := 0
+
+	// we expect an input file where each line contains a single expression
+	for scanner.Scan() {
+		lineNum++
+		processLine(scanner.Text(), lineNum)
+	}
+}
+
 func main() {
 	flag.Parse()
 	fmt.Println("Basic Arithmetic Parser REPL")
 	fmt.Println("Enter expressions to evaluate or type 'exit' to quit.")
 
 	if *inputFile != "" {
-		file, err := os.Open(*inputFile)
-		if err != nil {
-			fmt.Printf("Error opening file: %v\n", err)
-			return
-		}
-		defer file.Close()
-
-		fmt.Printf("Using input file: %s\n", *inputFile)
-		scanner := bufio.NewScanner(file)
-		lineNum := 0
-		// we expect an input file where each line contains a single expression
-		for scanner.Scan() {
-			lineNum++
-			processLine(scanner.Text(), lineNum)
-		}
-
+		processFile(*inputFile)
 	} else {
 		repl()
 	}
