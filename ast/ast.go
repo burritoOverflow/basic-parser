@@ -40,6 +40,7 @@ func (n *BinaryOpNode) Type() NodeType {
 	return BINARY_OP_NODE
 }
 
+// Display as infix notation
 func (n *BinaryOpNode) String() string {
 	return fmt.Sprintf("(%s %s %s)", n.Left.String(), n.Op.Value, n.Right.String())
 }
