@@ -40,12 +40,32 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
+// number returns a string representation of a number in the input
 func (l *Lexer) number() string {
 	result := ""
-	for l.currentChar != 0 && (unicode.IsDigit(rune(l.currentChar)) || l.currentChar == '.') {
-		result += string(l.currentChar)
-		l.advance()
+	decimalPointSeen := false
+
+	// collect digits and decimal point
+	for l.currentChar != 0 {
+		if unicode.IsDigit(rune(l.currentChar)) {
+			result += string(l.currentChar)
+			l.advance()
+		} else if l.currentChar == '.' {
+			if decimalPointSeen {
+				// Found a second decimal point, stop consuming the number here.
+				// The next call to GetNextToken will likely treat it as an invalid character or operator.
+				// TODO: we also need to collect cases like this
+				panic(fmt.Sprintf("Invalid number format: %s", result))
+			}
+			decimalPointSeen = true
+			result += string(l.currentChar)
+			l.advance()
+		} else {
+			// Not a digit or a decimal point, stop consuming the number.
+			break
+		}
 	}
+
 	return result
 }
 
@@ -56,10 +76,12 @@ func (l *Lexer) GetNextToken() token.Token {
 			continue
 		}
 
+		// Check for numbers
 		if unicode.IsDigit(rune(l.currentChar)) {
 			return token.Token{Type: token.NUMBER, Value: l.number()}
 		}
 
+		// Check for operators
 		switch l.currentChar {
 		case '+':
 			l.advance()
@@ -84,5 +106,6 @@ func (l *Lexer) GetNextToken() token.Token {
 		}
 	}
 
+	// End of input
 	return token.Token{Type: token.EOF, Value: ""}
 }
