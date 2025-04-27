@@ -2,11 +2,18 @@ package main
 
 import (
 	"basic-arithmetic-parser/ast"
+	"basic-arithmetic-parser/eval"
 	"basic-arithmetic-parser/lexer"
 	"basic-arithmetic-parser/parser"
+	"bufio"
+	"flag"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 )
+
+var printAST = flag.Bool("ast", false, "Print the Abstract Syntax Tree")
 
 func ParseExpression(input string) (ast.Node, error) {
 	defer func() {
@@ -22,26 +29,50 @@ func ParseExpression(input string) (ast.Node, error) {
 }
 
 func main() {
-	expressions := []string{
-		"3 + 4 * 2",
-		"(3 + 4) * 2",
-		"7 - 3 + 2",
-		"7 - (3 + 2)",
-		"10 / 2 - 3",
-		"3 * (4 + 2) / 3",
-		"-5 + 3",
-		"+2 * 3",
-	}
+	flag.Parse()
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Basic Arithmetic Parser REPL")
+	fmt.Println("Enter expressions to evaluate or type 'exit' to quit.")
 
-	for _, expr := range expressions {
-		fmt.Printf("\nExpression: %s\n", expr)
-		fmt.Println("AST:")
-		if exprAst, err := ParseExpression(expr); err == nil {
-			fmt.Println(ast.PrettyPrintAST(exprAst, ""))
-			fmt.Printf("Infix notation: %s\n", exprAst.String())
-		} else {
-			fmt.Printf("Error parsing '%s': %v\n", expr, err)
+	for {
+		fmt.Print("> ")
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Printf("Error reading input: %v\n", err)
+			continue
 		}
-		fmt.Println(strings.Repeat("-", 40))
+
+		input = strings.TrimSpace(input)
+		if input == "exit" {
+			break
+		}
+
+		if input == "" {
+			continue
+		}
+
+		exprAst, parseErr := ParseExpression(input)
+
+		if parseErr != nil {
+			fmt.Printf("  Error: %v\n", parseErr)
+			continue
+		}
+
+		if *printAST {
+			fmt.Println("  AST:")
+			fmt.Print(ast.PrettyPrintAST(exprAst, "    "))
+			fmt.Printf("  Infix notation: %s\n", exprAst.String())
+		}
+
+		// Evaluate the AST
+		result, evalErr := eval.Eval(exprAst)
+		if evalErr != nil {
+			fmt.Printf("  Evaluation error: %v\n", evalErr)
+		} else {
+			fmt.Printf("  Result: %g\n", result)
+		}
 	}
 }
