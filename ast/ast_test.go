@@ -100,7 +100,7 @@ func TestNodeString(t *testing.T) {
 }
 
 func TestPrettyPrintAST(t *testing.T) {
-	// Build a sample AST: (1 + 2) * -3
+	// Build a sample AST: 1 + 2 * -3
 	ast := &BinaryOpNode{
 		Left: &BinaryOpNode{
 			Left:  &NumberNode{Value: 1},
