@@ -59,6 +59,7 @@ func (n *UnaryOpNode) String() string {
 }
 
 // Generate a visual representation of the AST with indentation
+// TODO have this return an error when appropriate instead of 'Unknown node type'
 func PrettyPrintAST(node Node, indent string) string {
 	switch n := node.(type) {
 	case *NumberNode:

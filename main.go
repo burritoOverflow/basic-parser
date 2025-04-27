@@ -15,7 +15,8 @@ import (
 
 var printAST = flag.Bool("ast", false, "Print the Abstract Syntax Tree")
 
-func ParseExpression(input string) (ast.Node, error) {
+func parseExpression(input string) (ast.Node, error) {
+	// TODO: parser needs changes to collect errors rather than this 'exception handling' hack
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Error:", r)
@@ -49,13 +50,12 @@ func main() {
 		if input == "exit" {
 			break
 		}
-
+		// don't evaluate empty input
 		if input == "" {
 			continue
 		}
 
-		exprAst, parseErr := ParseExpression(input)
-
+		exprAst, parseErr := parseExpression(input)
 		if parseErr != nil {
 			fmt.Printf("  Error: %v\n", parseErr)
 			continue
@@ -67,7 +67,6 @@ func main() {
 			fmt.Printf("  Infix notation: %s\n", exprAst.String())
 		}
 
-		// Evaluate the AST
 		result, evalErr := eval.Eval(exprAst)
 		if evalErr != nil {
 			fmt.Printf("  Evaluation error: %v\n", evalErr)
