@@ -68,12 +68,18 @@ func (c *Compiler) GenerateNasm(nodes []ast.Node) (string, error) {
 func (c *Compiler) generateExpr(node ast.Node) error {
 	switch n := node.(type) {
 	case *ast.NumberNode:
+		// where `LC` is adopted naming convention for labels
+		// for constants in the data section (Literal Constant)
+		// i.e Label N = LC1, LC2, LC3...
 		label := fmt.Sprintf("LC%d", c.labelCount)
 		c.labelCount++
-		floatStr := strconv.FormatFloat(n.Value, 'f', -1, 64)
-		if !strings.Contains(floatStr, ".") {
-			floatStr += ".0"
-		}
+
+		// Use 'f' format with precision 1 to ensure at least one decimal place
+		// (omissions of this, where numbers are JUST integers,
+		// cause issues in NASM,
+		// resulting in 0.0 for calculations in the manner we perform)
+		floatStr := strconv.FormatFloat(n.Value, 'f', 1, 64)
+
 		// Add constant definition to the .data section buffer
 		c.dataSection.WriteString(fmt.Sprintf("    %s: dq %s\n", label, floatStr))
 
@@ -102,7 +108,7 @@ func (c *Compiler) generateExpr(node ast.Node) error {
 			// add st0 to st1, store result in st1, and pop the register stack
 			c.textSection.WriteString("    faddp st1, st0 ; Add\n")
 		case token.MINUS:
-			// subtract st1 from st0, store result in ST(i), and pop the register stack
+			// subtract st1 from st0, store result in st1, and pop the register stack
 			c.textSection.WriteString("    fsubrp st1, st0 ; Subtract\n")
 		case token.MULTIPLY:
 			// multiply st1 by st0 store result in st1, and pop the register stack
@@ -122,7 +128,8 @@ func (c *Compiler) generateExpr(node ast.Node) error {
 		}
 		switch n.Op.Type {
 		case token.PLUS:
-			// nothing to do, just a no-op. We'll be nice and leave a comment
+			// Technicaly valid, but nothing to do; just a no-op.
+			// We'll be nice and leave a comment
 			c.textSection.WriteString("    ; Unary plus (no-op)\n")
 		case token.MINUS:
 			// complements sign of st0: Vol. 2A 3-375B
