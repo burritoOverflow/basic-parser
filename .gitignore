@@ -1,1 +1,6 @@
 basic-arithmetic-parser
+# ignore generated assembly files
+*.asm
+# our input files
+*.txt
+.vscode/
